@@ -7,7 +7,7 @@
     "dev:frontend": "next dev",
     "dev:backend": "convex dev",
     "dev:socket": "tsx server.ts",
-    "start" : "npm-run-all --parallel dev:frontend dev:backend dev:socket",
+    "start" : "npm-run-all --parallel dev:frontend dev:backend",
     "dev:socket:nodemon": "nodemon --exec tsx server.ts",
     "predev": "convex dev --until-success && convex dashboard",
     "build": "next build",

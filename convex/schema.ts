@@ -12,14 +12,6 @@ export default defineSchema({
     lemonSqueezyOrderId: v.optional(v.string()),
   }).index("by_user_id", ["userId"]),
  
-  codeExecutions: defineTable({
-    userId: v.string(),
-    language: v.string(),
-    code: v.string(),
-    output: v.optional(v.union(v.string(), v.null())),
-    error: v.optional(v.union(v.string(), v.null())),
-  }).index("by_user_id", ["userId"]),
- 
   snippets: defineTable({
     userId: v.string(),
     title: v.string(),
