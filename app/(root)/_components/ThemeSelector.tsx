@@ -90,11 +90,9 @@ function ThemeSelector() {
                   group-hover:opacity-100 transition-opacity"
                 />
                 <div
-                  className={`
-                    flex items-center justify-center size-8 rounded-lg
+                  className={`flex items-center justify-center size-8 rounded-lg
                     ${theme === t.id ? "bg-blue-500/10 text-blue-400" : "bg-gray-800/50 text-gray-400"}
-                    group-hover:scale-110 transition-all duration-200
-                  `}
+                    group-hover:scale-110 transition-all duration-200`}
                 >
                   {THEME_ICONS[t.id] || <CircleOff className="w-4 h-4" />}
                 </div>

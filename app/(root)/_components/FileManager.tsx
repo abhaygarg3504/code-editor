@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
-import { useAction, useMutation, useQuery } from 'convex/react';
+import { useAction, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { toast } from 'react-hot-toast';
 
@@ -58,6 +58,9 @@ export const FileManager: React.FC<FileManagerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const githubFileRef = useRef<HTMLButtonElement | null>(null);
+  const githubRepoRef = useRef<HTMLButtonElement | null>(null)
+  
 
   // Check GitHub connection status directly from Convex
   const githubConnection = useQuery(
@@ -121,24 +124,39 @@ export const FileManager: React.FC<FileManagerProps> = ({
     }
   };
 
-  const handleSaveLocal = () => {
-    try {
-      const blob = new Blob([currentCode], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `code.${getFileExtension(language)}`;
-      document.body.appendChild(a);
-      a.click();
+  const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  try {
+    // Check if there's code to save
+    if (!currentCode || currentCode.trim() === '') {
+      toast.error('No code to save');
+      return;
+    }
+
+    const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `code.${getFileExtension(language)}`;
+    a.style.display = 'none'; // Hide the element
+    
+    // Append to body, click, and remove
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    setTimeout(() => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success('File saved locally!');
-      setIsOpen(false);
-    } catch (error) {
-      console.error('Error saving file:', error);
-      toast.error('Failed to save file');
-    }
-  };
+    }, 100);
+    
+    toast.success('File downloaded successfully!');
+    setIsOpen(false);
+  } catch (error) {
+    console.error('Error saving file:', error);
+    toast.error('Failed to download file. Please try again.');
+  }
+};
 
   const checkGitHubConnection = () => {
     if (!user?.id) {
@@ -188,6 +206,15 @@ export const FileManager: React.FC<FileManagerProps> = ({
       setIsLoading(false);
     }
   };
+
+const repoModalRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  if ((showGitHubRepos || showGitHubFiles) && repoModalRef.current) {
+    repoModalRef.current.scrollTop = 0;
+  }
+}, [showGitHubRepos, showGitHubFiles, repos, repoFiles]);
+
 
   const handleRepoSelect = async (fullName: string) => {
     setSelectedRepo(fullName);
@@ -353,18 +380,6 @@ export const FileManager: React.FC<FileManagerProps> = ({
     setError(null);
   };
 
-  // Filter out binary files and large files for better UX
-  const isTextFile = (filename: string) => {
-    const textExtensions = [
-      '.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cpp', '.c', '.h',
-      '.html', '.css', '.php', '.rb', '.go', '.rs', '.kt', '.swift',
-      '.cs', '.sh', '.bash', '.md', '.txt', '.json', '.xml', '.yaml',
-      '.yml', '.sql', '.r', '.scala', '.clj', '.elm', '.hs', '.ml',
-      '.vim', '.lua', '.pl', '.pm', '.tcl', '.awk', '.sed'
-    ];
-    return textExtensions.some(ext => filename.toLowerCase().endsWith(ext));
-  };
-
 
   function toogleFileDropdown(e : MouseEvent){
     e.preventDefault()
@@ -374,10 +389,63 @@ export const FileManager: React.FC<FileManagerProps> = ({
       document.removeEventListener("click",toogleFileDropdown)
     }
   }
+
+  function ToggleGithubFileDropDown(e : MouseEvent){
+    e.preventDefault();
+    setShowGitHubFiles(true)
+    if(githubFileRef.current && !githubFileRef.current.contains(e.target as Node)){
+      setShowGitHubFiles(false)
+       document.removeEventListener("click",ToggleGithubFileDropDown)
+    }
+  }
+  function ToggleGithubRepoDropDown(e : MouseEvent){
+    e.preventDefault();
+    setShowGitHubFiles(true)
+    if(githubFileRef.current && !githubFileRef.current.contains(e.target as Node)){
+      setShowGitHubFiles(false)
+       document.removeEventListener("click",ToggleGithubFileDropDown)
+    }
+  }
+
   const handleOutsideClick = () => {
     setIsOpen(true)
     document.addEventListener("click",toogleFileDropdown)
   }
+  const handleOutsideFileClick = ()=>{
+    setShowGitHubFiles(true)
+    document.addEventListener("click", ToggleGithubFileDropDown)
+  }
+  const handleOutsideRepoClick = ()=>{
+    setShowGitHubRepos(true)
+    document.addEventListener("click", ToggleGithubRepoDropDown)
+  }
+
+
+const filesModalRef = useRef<HTMLDivElement | null>(null);
+const saveModalRef  = useRef<HTMLDivElement | null>(null);
+
+
+function useOutsideClick<T extends HTMLElement>(
+  ref: React.RefObject<T> | React.MutableRefObject<T | null>,
+  isOpen: boolean,
+  onClose: () => void
+) {
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      const el = ref.current;
+      if (isOpen && el && !el.contains(e.target as Node)) {
+        onClose();
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, [ref, isOpen, onClose]);
+}
+useOutsideClick(repoModalRef,  showGitHubRepos, closeAllModals);
+useOutsideClick(filesModalRef, showGitHubFiles, closeAllModals);
+useOutsideClick(saveModalRef,  showGitHubSave,  closeAllModals);
 
   return (
     <div className="relative">
@@ -418,6 +486,7 @@ export const FileManager: React.FC<FileManagerProps> = ({
               </button>
               
               <button 
+              type='button'
                 onClick={handleSaveLocal} 
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#2a2a3a] rounded-lg transition-colors"
               >
@@ -473,14 +542,13 @@ export const FileManager: React.FC<FileManagerProps> = ({
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-        className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-20"
-        >
+            className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-20">
             <motion.div 
               initial={{ scale: 0.9 }} 
               animate={{ scale: 1 }} 
               exit={{ scale: 0.9 }} 
-              className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto"
-            >
+              ref={repoModalRef}
+              className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Select Repository</h3>
                 <button 
@@ -501,13 +569,23 @@ export const FileManager: React.FC<FileManagerProps> = ({
   whileHover={{ scale: 1.02 }}
   whileTap={{ scale: 0.98 }}
   onClick={() => handleRepoSelect(repo.full_name)} 
-  className="relative group w-full text-left p-3 bg-[#2a2a3a]/80 hover:bg-[#262637] rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-gray-700"
->
+   className={`   relative group w-full text-left p-3 rounded-lg transition-all duration-200 border
+     ${selectedRepo === repo.full_name      ? 'bg-blue-500/10 text-blue-400 border-blue-400'
+     : 'bg-[#2a2a3a]/80 text-gray-300 border-gray-800/50 hover:bg-[#262637] hover:border-gray-700'}
+    `}
+  
+  >
   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-  <div className="relative">
-    <div className="font-medium text-white group-hover:text-blue-300 transition-colors">{repo.name}</div>
-    <div className="text-sm text-gray-400 truncate group-hover:text-gray-300 transition-colors">{repo.description || 'No description'}</div>
-  </div>
+
+ <div className="relative">
+       
+   <div className="font-medium group-hover:text-blue-300 transition-colors">
+     {repo.name}
+   </div>
+   <div className="text-sm truncate group-hover:text-gray-300 transition-colors">
+     {repo.description || 'No description'}
+   </div>
+ </div>
                  </motion.button>
                 ))}
               </div>
@@ -529,7 +607,8 @@ export const FileManager: React.FC<FileManagerProps> = ({
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            ref={filesModalRef}
+            className="fixed inset-0  bg-black/50 flex items-center justify-center z-50"
           >
             <motion.div 
               initial={{ scale: 0.9 }} 
@@ -538,10 +617,9 @@ export const FileManager: React.FC<FileManagerProps> = ({
               className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto"
             >
               <motion.div 
-  initial={{ opacity: 0, y: -10 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="flex items-center justify-between mb-4"
->
+               initial={{ opacity: 0, y: -10 }}
+               animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between p-6 pb-4 border-b border-gray-800/50 shrink-0">
                <h3 className="text-lg font-semibold text-white truncate">
                   {selectedRepo}{currentPath ? `/${currentPath}` : ''}
                 </h3>
@@ -564,43 +642,80 @@ export const FileManager: React.FC<FileManagerProps> = ({
                 </div>
               </motion.div>
               
-              <div className="space-y-2">
-                {repoFiles.map(item => (
-                  <motion.button 
-  key={item.sha}
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: repoFiles.indexOf(item) * 0.05 }}
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.98 }}
-  onClick={() => handleFileOrFolderClick(item)} 
-  className="relative group w-full flex items-center gap-3 p-3 bg-[#2a2a3a]/80 hover:bg-[#262637] rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-gray-700"
->
-  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-  <div className="relative flex items-center gap-3 w-full">
-    {item.type === 'dir' ? (
-      <Folder className="w-5 h-5 text-gray-300 group-hover:text-blue-300 transition-colors" />
-    ) : (
-      <File className="w-5 h-5 text-gray-300 group-hover:text-green-300 transition-colors" />
-    )}
-    <span className="flex-1 text-left text-gray-200 text-sm truncate group-hover:text-white transition-colors">
-      {item.name}
-    </span>
-    {item.type === 'file' && (
-      <CheckCircle className="w-4 h-4 text-gray-400 group-hover:text-green-400 transition-colors" />
-    )}
-  </div>
-  </motion.button>
-                ))}
-                
-                {isLoading && (
-                  <div className="flex justify-center p-4">
-                    <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                  </div>
-                )}
+              <div className="flex-1 overflow-hidden flex">
+          {/* Directories Column */}
+          <div className="w-1/2 border-r border-gray-800/50 p-4 overflow-y-auto">
+            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <Folder className="w-4 h-4" />
+              Folders
+            </h4>
+            <div className="space-y-1">
+              {repoFiles.filter(item => item.type === 'dir').map((item, index) => (
+                <motion.button 
+                  key={item.sha}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.02 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleFileOrFolderClick(item)} 
+                  className="relative group w-full flex items-center gap-2 p-2 bg-[#2a2a3a]/50 hover:bg-[#262637] rounded-md transition-all duration-200 border border-transparent hover:border-blue-500/30"
+                >
+                  <Folder className="w-4 h-4 text-blue-300 flex-shrink-0" />
+                  <span className="flex-1 text-left text-gray-200 text-xs truncate group-hover:text-white transition-colors">
+                    {item.name}
+                  </span>
+                </motion.button>
+              ))}
+              {repoFiles.filter(item => item.type === 'dir').length === 0 && !isLoading && (
+                <div className="text-xs text-gray-500 italic p-2">No folders</div>
+              )}
+            </div>
+          </div>
+          
+          {/* Files Column */}
+          <div className="w-1/2 p-4 overflow-y-auto">
+            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+              <File className="w-4 h-4" />
+              Files
+            </h4>
+            <div className="space-y-1">
+              {repoFiles.filter(item => item.type === 'file').map((item, index) => (
+                <motion.button 
+                  key={item.sha}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.02 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleFileOrFolderClick(item)} 
+                  className="relative group w-full flex items-center gap-2 p-2 bg-[#2a2a3a]/50 hover:bg-[#262637] rounded-md transition-all duration-200 border border-transparent hover:border-green-500/30"
+                >
+                  <File className="w-4 h-4 text-green-300 flex-shrink-0" />
+                  <span className="flex-1 text-left text-gray-200 text-xs truncate group-hover:text-white transition-colors">
+                    {item.name}
+                  </span>
+                  <CheckCircle className="w-3 h-3 text-gray-400 group-hover:text-green-400 transition-colors flex-shrink-0" />
+                </motion.button>
+              ))}
+              {repoFiles.filter(item => item.type === 'file').length === 0 && !isLoading && (
+                <div className="text-xs text-gray-500 italic p-2">No files</div>
+              )}
+            </div>
+          </div>
+          
+          {/* Loading State */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#1e1e2e]/80">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <span className="text-xs text-gray-400">Loading...</span>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+      </motion.div>
         )}
       </AnimatePresence>
 
@@ -611,6 +726,7 @@ export const FileManager: React.FC<FileManagerProps> = ({
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
+            ref={saveModalRef}
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           >
             <motion.div 
