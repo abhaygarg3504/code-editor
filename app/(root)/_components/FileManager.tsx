@@ -473,8 +473,8 @@ export const FileManager: React.FC<FileManagerProps> = ({
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="absolute w-96 top-full  inset-0 bg-black/50 flex items-center justify-center z-50"
-          >
+        className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-20"
+        >
             <motion.div 
               initial={{ scale: 0.9 }} 
               animate={{ scale: 1 }} 
@@ -493,14 +493,22 @@ export const FileManager: React.FC<FileManagerProps> = ({
               
               <div className="space-y-2">
                 {repos.map(repo => (
-                  <button 
-                    key={repo.id} 
-                    onClick={() => handleRepoSelect(repo.full_name)} 
-                    className="w-full text-left p-3 bg-[#2a2a3a] hover:bg-[#333] rounded-lg transition-colors"
-                  >
-                    <div className="font-medium text-white">{repo.name}</div>
-                    <div className="text-sm text-gray-400 truncate">{repo.description || 'No description'}</div>
-                  </button>
+                 <motion.button 
+  key={repo.id}
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: repos.indexOf(repo) * 0.1 }}
+  whileHover={{ scale: 1.02 }}
+  whileTap={{ scale: 0.98 }}
+  onClick={() => handleRepoSelect(repo.full_name)} 
+  className="relative group w-full text-left p-3 bg-[#2a2a3a]/80 hover:bg-[#262637] rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-gray-700"
+>
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+  <div className="relative">
+    <div className="font-medium text-white group-hover:text-blue-300 transition-colors">{repo.name}</div>
+    <div className="text-sm text-gray-400 truncate group-hover:text-gray-300 transition-colors">{repo.description || 'No description'}</div>
+  </div>
+                 </motion.button>
                 ))}
               </div>
               
@@ -529,8 +537,12 @@ export const FileManager: React.FC<FileManagerProps> = ({
               exit={{ scale: 0.9 }} 
               className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white truncate">
+              <motion.div 
+  initial={{ opacity: 0, y: -10 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="flex items-center justify-between mb-4"
+>
+               <h3 className="text-lg font-semibold text-white truncate">
                   {selectedRepo}{currentPath ? `/${currentPath}` : ''}
                 </h3>
                 <div className="flex gap-2">
@@ -550,27 +562,35 @@ export const FileManager: React.FC<FileManagerProps> = ({
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
               
               <div className="space-y-2">
                 {repoFiles.map(item => (
-                  <button 
-                    key={item.sha} 
-                    onClick={() => handleFileOrFolderClick(item)} 
-                    className="w-full flex items-center gap-3 p-3 bg-[#2a2a3a] hover:bg-[#333] rounded-lg transition-colors"
-                  >
-                    {item.type === 'dir' ? (
-                      <Folder className="w-5 h-5 text-gray-300" />
-                    ) : (
-                      <File className="w-5 h-5 text-gray-300" />
-                    )}
-                    <span className="flex-1 text-left text-gray-200 text-sm truncate">
-                      {item.name}
-                    </span>
-                    {item.type === 'file' && (
-                      <CheckCircle className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
+                  <motion.button 
+  key={item.sha}
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: repoFiles.indexOf(item) * 0.05 }}
+  whileHover={{ scale: 1.02 }}
+  whileTap={{ scale: 0.98 }}
+  onClick={() => handleFileOrFolderClick(item)} 
+  className="relative group w-full flex items-center gap-3 p-3 bg-[#2a2a3a]/80 hover:bg-[#262637] rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-gray-700"
+>
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+  <div className="relative flex items-center gap-3 w-full">
+    {item.type === 'dir' ? (
+      <Folder className="w-5 h-5 text-gray-300 group-hover:text-blue-300 transition-colors" />
+    ) : (
+      <File className="w-5 h-5 text-gray-300 group-hover:text-green-300 transition-colors" />
+    )}
+    <span className="flex-1 text-left text-gray-200 text-sm truncate group-hover:text-white transition-colors">
+      {item.name}
+    </span>
+    {item.type === 'file' && (
+      <CheckCircle className="w-4 h-4 text-gray-400 group-hover:text-green-400 transition-colors" />
+    )}
+  </div>
+  </motion.button>
                 ))}
                 
                 {isLoading && (
@@ -597,8 +617,9 @@ export const FileManager: React.FC<FileManagerProps> = ({
               initial={{ scale: 0.9 }} 
               animate={{ scale: 1 }} 
               exit={{ scale: 0.9 }} 
-              className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-md"
-            >
+          className="bg-[#1e1e2e]/95 backdrop-blur-xl rounded-xl border border-[#313244] shadow-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto"
+
+          >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Save to GitHub</h3>
                 <button 
