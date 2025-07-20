@@ -23,7 +23,7 @@ export function GitHubDisconnectDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60  cursor-pointer backdrop-blur-sm"
         onClick={onClose}
       />
       
@@ -35,7 +35,7 @@ export function GitHubDisconnectDialog({
           className="absolute top-4 right-4 p-1 text-gray-400 hover:text-white transition-colors"
           disabled={isDisconnecting}
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 cursor-pointer" />
         </button>
 
         {/* Header */}
@@ -89,7 +89,7 @@ export function GitHubDisconnectDialog({
           <button
             onClick={onConfirm}
             disabled={isDisconnecting}
-            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 bg-red-600 cursor-pointer hover:bg-red-700 disabled:bg-red-600/50 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
           >
             {isDisconnecting ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

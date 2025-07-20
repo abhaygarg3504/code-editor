@@ -59,7 +59,6 @@ export const FileManager: React.FC<FileManagerProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const githubFileRef = useRef<HTMLButtonElement | null>(null);
-  const githubRepoRef = useRef<HTMLButtonElement | null>(null)
   
 
   // Check GitHub connection status directly from Convex

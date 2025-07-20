@@ -11,7 +11,7 @@ import UpgradeButton from "./_components/UpgradeButton";
 
 export default function Page() {
     const {isPro} = useUserAccess();
-
+    
     if(isPro) return <ProPlanView/>
 
     return (

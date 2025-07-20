@@ -20,8 +20,6 @@ export const StreamVideoProvider = ({ children }: { children: React.ReactNode })
       setError(null);
 
       try {
-        console.log('🎥 Initializing Stream Video client for user:', user.id);
-        
         const client = new StreamVideoClient({
           apiKey,
           user: {
@@ -30,7 +28,6 @@ export const StreamVideoProvider = ({ children }: { children: React.ReactNode })
             image: user.imageUrl,
           },
           tokenProvider: async () => {
-            console.log('🎥 Requesting Stream token...');
             const response = await fetch('/api/stream-token', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -45,15 +42,13 @@ export const StreamVideoProvider = ({ children }: { children: React.ReactNode })
             }
             
             const data = await response.json();
-            console.log('🎥 Stream token received successfully');
             return data.token;
           },
         });
 
         setVideoClient(client);
-        console.log('🎥 Stream Video client initialized successfully');
       } catch (error) {
-        console.error('❌ Error initializing Stream Video client:', error);
+        console.error('Error initializing Stream Video client:', error);
         setError(error instanceof Error ? error.message : 'Failed to initialize video client');
       } finally {
         setIsInitializing(false);
@@ -64,7 +59,6 @@ export const StreamVideoProvider = ({ children }: { children: React.ReactNode })
 
     return () => {
       if (videoClient) {
-        console.log('🎥 Disconnecting Stream Video client...');
         videoClient.disconnectUser().catch(console.error);
       }
     };

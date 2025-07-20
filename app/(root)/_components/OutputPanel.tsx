@@ -339,7 +339,7 @@ const OutputPanel: React.FC<OutputPanelProps> = ({
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
-              Console
+              Result
             </button>
             <button
               onClick={() => setActiveTab('tests')}
@@ -431,7 +431,7 @@ const OutputPanel: React.FC<OutputPanelProps> = ({
 
       {/* Output Area */}
       <div className="flex-1 relative">
-        <div className="relative bg-[#1e1e2e]/50 backdrop-blur-sm border border-[#313244] rounded-xl p-4 h-full overflow-auto">
+        <div className="relative bg-[#1e1e2e]/50 backdrop-blur-sm border border-[#313244] rounded-xl p-4 h-full overflow-visible">
           {activeTab === 'output' ? (
             // Console Output Tab
             <>

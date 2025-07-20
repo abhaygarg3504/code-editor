@@ -85,17 +85,13 @@ export const VideoCall: React.FC<VideoCallProps> = ({ sessionId, isOpen, onClose
         setCall(callInstance);
 
         if (result.isNew) {
-          console.log('🎥 Creating new call...');
           await callInstance.getOrCreate();
-        } else {
-          console.log('🎥 Joining existing call...');
         }
         
         await callInstance.join();
-        console.log('🎥 Successfully joined call');
         
       } catch (error) {
-        console.error('❌ Error initializing call:', error);
+        console.error(' Error initializing call:', error);
         setError('Failed to initialize video call');
       } finally {
         setIsInitializing(false);
@@ -106,7 +102,6 @@ export const VideoCall: React.FC<VideoCallProps> = ({ sessionId, isOpen, onClose
 
     return () => {
       if (call) {
-        console.log('🎥 Cleaning up call...');
         call.leave().catch(console.error);
         if (user) {
           leaveVideoCall({

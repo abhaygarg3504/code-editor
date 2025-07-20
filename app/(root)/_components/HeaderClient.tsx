@@ -40,36 +40,27 @@ const [isDisconnecting, setIsDisconnecting] = useState(false);
   // Ensure isPro is properly typed as boolean
   const hasAccess = Boolean(convexUser?.isPro);
 
-  useEffect(() => {
-    console.log("HeaderClient state:", {
-      convexUser,
-      hasAccess,
-      isConnected,
-      isConnecting,
-      isLoading,
-      username,
-    });
-  }, [convexUser, hasAccess, isConnected, isConnecting, isLoading, username]);
+  // useEffect(() => {
+  //   console.log("HeaderClient state:", {
+  //     convexUser,
+  //     hasAccess,
+  //     isConnected,
+  //     isConnecting,
+  //     isLoading,
+  //     username,
+  //   });
+  // }, [convexUser, hasAccess, isConnected, isConnecting, isLoading, username]);
 
   const handleGitHubAuth = () => {
-    console.log("GitHub auth requested:", {
-      isConnected,
-      isConnecting,
-      isLoading,
-    });
-
     if (isConnected) {
-      console.log("Already connected to GitHub");
       return;
     }
 
     if (isConnecting) {
-      console.log("Already connecting to GitHub");
       return;
     }
 
     if (isLoading) {
-      console.log("Still loading connection status");
       return;
     }
 
@@ -77,8 +68,7 @@ const [isDisconnecting, setIsDisconnecting] = useState(false);
   };
 
   const handleGitHubConnect = () => {
-    console.log("Connecting to GitHub...");
-    setShowGitHubAuthDialog(false);
+   setShowGitHubAuthDialog(false);
     connectGitHub();
   };
 

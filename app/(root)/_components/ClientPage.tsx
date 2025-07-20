@@ -42,7 +42,6 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
 
   // KEY FIX: Add this callback to receive editor instance from EditorPanel
   const handleEditorReady = useCallback((editor: any) => {
-    console.log("Editor instance received in ClientPage:", editor);
     setEditorInstance(editor);
   }, []);
 
@@ -56,10 +55,8 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
   const getCurrentCodeFromEditor = useCallback(() => {
     if (editorInstance) {
       const editorCode = editorInstance.getValue();
-      console.log("Getting current code from editor instance:", editorCode.length, "characters");
       return editorCode;
     }
-    console.log("Editor instance not available, returning store code:", code?.length || 0, "characters");
     return code || "";
   }, [editorInstance, code]);
 
@@ -98,27 +95,25 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
   // Priority: client data > server data > default false
   const currentConvexUser = React.useMemo(() => {
     if (clientUserData) {
-      console.log("ClientPage: Using client user data:", clientUserData);
       return { isPro: Boolean(clientUserData.isPro) };
     }
     
-    console.log("ClientPage: Using server user data:", serverConvexUser);
     return { isPro: Boolean(serverConvexUser?.isPro) };
   }, [clientUserData, serverConvexUser]);
 
   // Debug logging
-  useEffect(() => {
-    console.log("ClientPage: User data debug:", {
-      userId,
-      userClerkId: user?.id,
-      serverConvexUser,
-      clientUserData,
-      currentConvexUser,
-      finalHasAccess: Boolean(currentConvexUser?.isPro),
-      githubConnected: isConnected,
-      editorInstance: !!editorInstance
-    });
-  }, [userId, user?.id, serverConvexUser, clientUserData, currentConvexUser, isConnected, editorInstance]);
+  // useEffect(() => {
+  //   console.log("ClientPage: User data debug:", {
+  //     userId,
+  //     userClerkId: user?.id,
+  //     serverConvexUser,
+  //     clientUserData,
+  //     currentConvexUser,
+  //     finalHasAccess: Boolean(currentConvexUser?.isPro),
+  //     githubConnected: isConnected,
+  //     editorInstance: !!editorInstance
+  //   });
+  // }, [userId, user?.id, serverConvexUser, clientUserData, currentConvexUser, isConnected, editorInstance]);
 
   const { 
     roomId,
@@ -136,29 +131,24 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
     isExecuting,
   } = useCollab({
     onCodeInit: (code: string) => {
-      console.log("📝 Initializing collaborative code:", code.length, "characters");
       setCollaborativeCode(code);
       if (typeof setCode === 'function') setCode(code, true);
     },
     onCodeUpdate: (code: string, userId?: string, userName?: string) => {
-      console.log("🔄 Updating collaborative code:", code.length, "characters");
       setCollaborativeCode(code);
       if (typeof setCode === 'function') setCode(code, true);
     },
     onRunStart: () => {
-      console.log("🚀 Collaborative run started");
       setIsCollaborativeRunning(true);
       setCollaborativeOutput("");
       setCollaborativeError(null);
     },
     onRunComplete: (output: string, error: string | null) => {
-      console.log("✅ Collaborative run completed");
       setIsCollaborativeRunning(false);
       setCollaborativeOutput(output);
       setCollaborativeError(error);
     },
     onOutputUpdate: (output: string, error: string | null) => {
-      console.log("📊 Output updated from collaboration");
       setCollaborativeOutput(output);
       setCollaborativeError(error);
     }
@@ -167,14 +157,12 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
   // Auto-join room from URL
   useEffect(() => {
     if (roomIdFromUrl && collabConnected && !roomId) {
-      console.log("🚪 Auto-joining room from URL:", roomIdFromUrl);
       joinRoom(roomIdFromUrl);
     }
   }, [roomIdFromUrl, collabConnected, roomId, joinRoom]);
 
   useEffect(() => {
     const isInRoom = Boolean(roomId);
-    console.log("🤝 Collaboration state changed:", isInRoom);
     if (typeof setCollaborating === 'function') {
       setCollaborating(isInRoom);
     }
@@ -192,8 +180,6 @@ const ClientPage = ({ userId, convexUser: serverConvexUser = { isPro: false } }:
     },
     [roomId, sendOutput]
   );
-
-  console.log("ClientPage: Final render with convexUser:", currentConvexUser);
 
   return (
     <div className="min-h-screen">

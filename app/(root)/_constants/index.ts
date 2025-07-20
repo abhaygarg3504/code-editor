@@ -67,51 +67,6 @@ console.log('Sum of numbers:', sum);`,
   );
 }`,
   },
-  jsx: {
-    id: "jsx",
-    label: "JSX",
-    logoPath: "/react.png",
-    pistonRuntime: { language: "javascript", version: "18.15.0" },
-    monacoLanguage: "typescript", // Better JSX syntax highlighting
-    defaultCode: `export default function App() {
-  const [todos, setTodos] = React.useState([
-    { id: 1, text: 'Learn React', completed: false },
-    { id: 2, text: 'Build awesome apps', completed: false }
-  ]);
-
-  const toggleTodo = (id) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Todo List</h2>
-      {todos.map(todo => (
-        <div 
-          key={todo.id} 
-          style={{ 
-            padding: '10px', 
-            margin: '5px 0', 
-            backgroundColor: todo.completed ? '#d4edda' : '#f8f9fa',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-          onClick={() => toggleTodo(todo.id)}
-        >
-          <span style={{ 
-            textDecoration: todo.completed ? 'line-through' : 'none' 
-          }}>
-            {todo.text}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}`,
-  },
    python: {
     id: "python",
     label: "Python",

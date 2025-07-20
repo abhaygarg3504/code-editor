@@ -125,7 +125,6 @@ function EditorPanel({
     if (collaborativeCode !== undefined && editor && isCollaborating && !isSettingCode && !isUpdatingFromCollab) {
       const currentCode = editor.getValue();
       if (currentCode !== collaborativeCode) {
-        console.log("🔄 Updating editor from collaboration:", collaborativeCode.substring(0, 50) + "...");
         setIsSettingCode(true);
         setIsUpdatingFromCollab(true);
         const position = editor.getPosition();
@@ -186,7 +185,6 @@ function EditorPanel({
       }
       
       typingTimeoutRef.current = setTimeout(() => {
-        console.log("📤 Sending debounced code change:", code.length, "characters");
         if (sendCodeChange) {
           sendCodeChange(code);
         } else if (onCodeChange) {
@@ -217,11 +215,8 @@ function EditorPanel({
   const getCurrentCode = () => {
     if (editor) {
       const editorCode = editor.getValue();
-      // Always return the actual editor content, not the state
-      console.log("Getting current code from editor:", editorCode.length, "characters");
       return editorCode;
     }
-    console.log("Editor not available, returning state code:", currentCode.length, "characters");
     return currentCode;
   };
 

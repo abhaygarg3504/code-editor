@@ -15,11 +15,6 @@ function LanguageSelector({ hasAccess }: LanguageSelectorProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentLanguageObj = LANGUAGE_CONFIG[language];
 
-  // Debug log to check the hasAccess value
-  useEffect(() => {
-    console.log("LanguageSelector received hasAccess:", hasAccess, typeof hasAccess);
-  }, [hasAccess]);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -32,27 +27,14 @@ function LanguageSelector({ hasAccess }: LanguageSelectorProps) {
   }, []);
 
   // Define free languages that non-pro users can access
-  const freeLanguages = ["javascript", "react", "jsx", "cpp", "python", "java"];
+  const freeLanguages = ["javascript", "react", "cpp", "python", "java"];
 
-  // Helper function to determine if a language is locked
   const isLanguageLocked = (langId: string) => {
     const isLocked = !hasAccess && !freeLanguages.includes(langId);
-    console.log(`Language ${langId}: hasAccess=${hasAccess}, freeLanguages.includes=${freeLanguages.includes(langId)}, isLocked=${isLocked}`);
     return isLocked;
   };
 
   const handleLanguageSelect = (langId: string) => {
-    // Use the same logic as isLanguageLocked
-    const isLocked = isLanguageLocked(langId);
-    
-    console.log(`Attempting to select language ${langId}: hasAccess=${hasAccess}, isLocked=${isLocked}`);
-    
-    if (isLocked) {
-      console.log(`Access denied for language: ${langId} - User needs Pro access`);
-      return;
-    }
-
-    console.log(`Language ${langId} selected successfully`);
     setLanguage(langId);
     setIsOpen(false);
   };
@@ -226,7 +208,7 @@ function LanguageSelector({ hasAccess }: LanguageSelectorProps) {
                   Upgrade to Pro to unlock all languages
                 </p>
                 <p className="text-xs text-green-400/60 text-center mt-1">
-                  Free: JavaScript, React, JSX
+                  Free: JavaScript, React JSX, C++, Python, Java
                 </p>
               </div>
             )}

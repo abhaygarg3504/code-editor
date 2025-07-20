@@ -57,18 +57,21 @@ export function CollabHeader({
 
   const handleCreateRoom = () => {
     if (!isConnected) {
-      console.log("❌ Not connected to server");
       return;
     }
-    console.log("📝 Creating new room...");
     createRoom();
     setMobileMenuOpen(false);
   };
 
   const handleCreateCustomRoom = () => {
     if (customRoomId.trim() && isConnected) {
-      console.log("📝 Creating custom room:", customRoomId.trim());
-      joinRoom(customRoomId.trim());
+      const roomIdToJoin = customRoomId.trim();
+      joinRoom(roomIdToJoin);
+      if (typeof window !== 'undefined') {
+        const newUrl = `${window.location.origin}/?room=${roomIdToJoin}`;
+        window.history.pushState({ roomId: roomIdToJoin }, '', newUrl);
+      }
+      
       setCustomRoomId("");
       setShowCustomInput(false);
       setMobileMenuOpen(false);
@@ -77,8 +80,13 @@ export function CollabHeader({
 
   const handleJoinRoom = () => {
     if (joinInput.trim() && isConnected) {
-      console.log("🚪 Joining room:", joinInput.trim());
-      joinRoom(joinInput.trim());
+      const roomIdToJoin = joinInput.trim();
+      joinRoom(roomIdToJoin);
+      if (typeof window !== 'undefined') {
+        const newUrl = `${window.location.origin}/?room=${roomIdToJoin}`;
+        window.history.pushState({ roomId: roomIdToJoin }, '', newUrl);
+      }
+      
       setJoinInput("");
       setShowJoinInput(false);
       setMobileMenuOpen(false);
@@ -87,7 +95,6 @@ export function CollabHeader({
 
   const handleLeaveRoom = () => {
     if (roomId) {
-      console.log("🚪 Leaving room:", roomId);
       leaveRoom();
       setMenuOpen(false);
       setMobileMenuOpen(false);
@@ -96,7 +103,7 @@ export function CollabHeader({
 
   const copyRoomLink = async () => {
     if (typeof window !== 'undefined' && roomId) {
-      const link = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+      const link = `${window.location.origin}/?room=${roomId}`;
       try {
         await navigator.clipboard.writeText(link);
         setCopied(true);
@@ -114,7 +121,6 @@ export function CollabHeader({
         await navigator.clipboard.writeText(roomId);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        console.log("📋 Room ID copied:", roomId);
       } catch (error) {
         console.error("Failed to copy room ID:", error);
       }
@@ -178,6 +184,16 @@ export function CollabHeader({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen, mobileMenuOpen]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomIdFromUrl = urlParams.get('room');
+      if (roomIdFromUrl && !roomId && isConnected) {
+        joinRoom(roomIdFromUrl);
+      }
+    }
+  }, [isConnected, roomId, joinRoom]);
 
   return (
     <div className="w-full max-w-full">
@@ -334,38 +350,44 @@ export function CollabHeader({
                   </div>
 
                   {/* Participants List */}
-                  {menuOpen && (
-                    <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-300">
-                          Participants ({users.length})
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2 mb-3">
-                        {users.length > 0 ? (
-                          users.map((user, index) => (
-                            <div key={typeof user === 'string' ? user : (user?.id ?? index)} className="flex items-center gap-2 text-sm">
-                              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                              <span className="text-gray-300">
-                                {typeof user === 'string' ? user : user?.name || `User ${index + 1}`}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-sm text-gray-500">No other participants</div>
-                        )}
-                      </div>
+                 {/* Participants List */}
+{menuOpen && (
+  <>
+    <div className="fixed inset-0 z-[9998] bg-black/20" onClick={() => setMenuOpen(false)} />
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 bg-gray-800 rounded-lg border border-gray-700 shadow-xl z-[9999] max-h-96 overflow-auto">
+      <div className="p-3">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Users className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm font-medium text-gray-300">
+                              Participants ({users.length})
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-2 mb-3">
+                            {users.length > 0 ? (
+                              users.map((user, index) => (
+                                <div key={typeof user === 'string' ? user : (user?.id ?? index)} className="flex items-center gap-2 text-sm">
+                                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                  <span className="text-gray-300">
+                                    {typeof user === 'string' ? user : user?.name || `User ${index + 1}`}
+                                  </span>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-gray-500">No other participants</div>
+                            )}
+                          </div>
 
-                      <button
-                        onClick={handleLeaveRoom}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                      >
-                        <LogOutIcon className="w-4 h-4" />
-                        <span>Leave Room</span>
-                      </button>
-                    </div>
+                          <button
+                            onClick={handleLeaveRoom}
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                          >
+                            <LogOutIcon className="w-4 h-4" />
+                            <span>Leave Room</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
