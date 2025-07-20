@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     githubAuthUrl.searchParams.set('client_id', githubClientId);
     githubAuthUrl.searchParams.set('redirect_uri', `${process.env.NEXT_PUBLIC_APP_URL}/api/github/callback`);
     githubAuthUrl.searchParams.set('scope', 'repo user:email');
+    githubAuthUrl.searchParams.set('prompt', 'select_account'); 
     githubAuthUrl.searchParams.set('state', JSON.stringify({
       userId,
       redirectUrl,

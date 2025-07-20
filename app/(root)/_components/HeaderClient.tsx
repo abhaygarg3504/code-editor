@@ -1,7 +1,7 @@
 // HeaderClient.tsx
 "use client";
 import Link from "next/link";
-import { Blocks, Code2, Sparkles, Menu, X } from "lucide-react";
+import { Blocks, Code2, Sparkles, Menu, X, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import LanguageSelector from "./LanguageSelector";
 import ThemeSelector from "./ThemeSelector";
@@ -10,6 +10,7 @@ import { CollabHeader } from "@/src/components/CollabHeader";
 import { FileManager } from "./FileManager";
 import { GitHubAuthDialog } from "./GithubAuthDialog";
 import { useGitHubIntegration } from "@/src/hooks/useGithubIntegration";
+import { GitHubDisconnectDialog } from "./GithubDisconnectDialog";
 
 interface ConvexUser {
   isPro?: boolean;
@@ -30,8 +31,10 @@ export default function HeaderClient({
 }: HeaderClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showGitHubAuthDialog, setShowGitHubAuthDialog] = useState(false);
+  const [showGitHubDisconnectDialog, setShowGitHubDisconnectDialog] = useState(false);
+const [isDisconnecting, setIsDisconnecting] = useState(false);
 
-  const { isConnected, isConnecting, isLoading, connectGitHub, username } =
+  const { isConnected, isConnecting, isLoading, connectGitHub, username, disconnectGitHub } =
     useGitHubIntegration();
 
   // Ensure isPro is properly typed as boolean
@@ -94,6 +97,18 @@ export default function HeaderClient({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
+  const handleDisconnectGithub = async()=>{
+    setIsDisconnecting(true)
+    try {
+      await disconnectGitHub()
+      setShowGitHubDisconnectDialog(false)
+    } catch(error) {
+     console.error('Failed to disconnect:', error);
+  } finally {
+    setIsDisconnecting(false);
+  }
+  }
+
   return (
     <>
       <div className="w-full max-w-full">
@@ -142,11 +157,24 @@ export default function HeaderClient({
                   isGitHubConnected={isConnected}
                 />
 
-                {isConnected && username && (
-                  <div className="text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded whitespace-nowrap">
-                    GitHub: {username}
-                  </div>
-                )}
+        
+
+{/* Mobile GitHub Status with Disconnect */}
+{isConnected && username && (
+  <div className="flex items-center gap-2">
+    <div className="text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded">
+      GitHub: {username}
+    </div>
+    <button
+      onClick={() => setShowGitHubDisconnectDialog(true)}
+      className="text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2 py-1 rounded transition-colors flex items-center gap-1"
+      title="Disconnect GitHub"
+    >
+      <LogOut className="w-3 h-3" />
+     Github Logout
+    </button>
+  </div>
+)}
 
                 <ThemeSelector />
                 <LanguageSelector hasAccess={hasAccess} />
@@ -266,6 +294,13 @@ export default function HeaderClient({
         onCloseAction={() => setShowGitHubAuthDialog(false)}
         onAuthorisedAction={handleGitHubConnect}
       />
+      <GitHubDisconnectDialog
+  isOpen={showGitHubDisconnectDialog}
+  onClose={() => setShowGitHubDisconnectDialog(false)}
+  onConfirm={handleDisconnectGithub}
+  username={username}
+  isDisconnecting={isDisconnecting}
+/>
     </>
   );
 }

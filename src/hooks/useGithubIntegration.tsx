@@ -125,18 +125,42 @@ export const useGitHubIntegration = () => {
     }
   }, [user, isConnecting]);
 
-  const disconnectGitHub = useCallback(async () => {
-    if (!user) return;
+  // const disconnectGitHub = useCallback(async () => {
+  //   if (!user) return;
 
-    try {
-      await removeToken({ userId: user.id });
-      setLocalConnectionStatus({ connected: false });
-      toast.success('GitHub disconnected successfully');
-    } catch (error) {
-      console.error('Error disconnecting GitHub:', error);
-      toast.error('Failed to disconnect GitHub');
+  //   try {
+  //     await removeToken({ userId: user.id });
+  //     setLocalConnectionStatus({ connected: false });
+  //     toast.success('GitHub disconnected successfully');
+  //   } catch (error) {
+  //     console.error('Error disconnecting GitHub:', error);
+  //     toast.error('Failed to disconnect GitHub');
+  //   }
+  // }, [user, removeToken]);
+
+  const disconnectGitHub = useCallback(async () => {
+  if (!user) return;
+
+  try {
+    // Call the revoke endpoint instead of just removing the token
+    const response = await fetch('/api/github/revoke', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to disconnect GitHub');
     }
-  }, [user, removeToken]);
+
+    setLocalConnectionStatus({ connected: false });
+    toast.success('GitHub disconnected successfully');
+  } catch (error) {
+    console.error('Error disconnecting GitHub:', error);
+    toast.error('Failed to disconnect GitHub');
+  }
+}, [user]);
 
   const isConnected = localConnectionStatus?.connected ?? connectionStatus?.connected ?? false;
   const username = localConnectionStatus?.username ?? connectionStatus?.username;
