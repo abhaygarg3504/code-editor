@@ -348,8 +348,7 @@ export function CollabHeader({
                       <span className="text-gray-300">{users.length}</span>
                     </button>
                   </div>
-
-                  {/* Participants List */}
+                  
                  {/* Participants List */}
 {menuOpen && (
   <>

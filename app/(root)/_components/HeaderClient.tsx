@@ -157,7 +157,7 @@ const [isDisconnecting, setIsDisconnecting] = useState(false);
     </div>
     <button
       onClick={() => setShowGitHubDisconnectDialog(true)}
-      className="text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2 py-1 rounded transition-colors flex items-center gap-1"
+      className="text-xs text-red-400 bg-green-500/10 px-2 py-1 rounded"
       title="Disconnect GitHub"
     >
       <LogOut className="w-3 h-3" />

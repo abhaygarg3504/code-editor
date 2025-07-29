@@ -107,53 +107,156 @@ export const FileManager: React.FC<FileManagerProps> = ({
 
   const handleOpenLocal = () => fileInputRef.current?.click();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        onFileContent(reader.result as string);
-        toast.success('File loaded successfully!');
+  // const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = () => {
+  //       onFileContent(reader.result as string);
+  //       toast.success('File loaded successfully!');
+  //       setIsOpen(false);
+  //     };
+  //     reader.onerror = () => {
+  //       toast.error('Failed to read file');
+  //     };
+  //     reader.readAsText(file);
+  //   }
+  // };
+
+// const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
+//   e.preventDefault();
+//   try {
+//     // Check if there's code to save
+//     if (!currentCode || currentCode.trim() === '') {
+//       toast.error('No code to save');
+//       return;
+//     }
+
+//     const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = `code.${getFileExtension(language)}`;
+    
+//     // Important: Trigger the download immediately
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+    
+//     // Clean up the blob URL
+//     URL.revokeObjectURL(url);
+    
+//     toast.success('File downloaded successfully!');
+//     setIsOpen(false);
+//   } catch (error) {
+//     console.error('Error saving file:', error);
+//     toast.error('Failed to download file. Please try again.');
+//   }
+// };
+
+// const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
+//   e.preventDefault();
+  
+//   try {
+//     if (!currentCode || currentCode.trim() === '') {
+//       toast.error('No code to save');
+//       return;
+//     }
+
+//     // Debug logs
+//     console.log('Attempting to save file...');
+//     console.log('Current code length:', currentCode.length);
+    
+//     const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(currentCode);
+//     const downloadAnchorNode = document.createElement('a');
+//     downloadAnchorNode.setAttribute("href", dataStr);
+//     downloadAnchorNode.setAttribute("download", `code.${getFileExtension(language)}`);
+    
+//     // Must be added to DOM for Firefox
+//     document.body.appendChild(downloadAnchorNode);
+//     downloadAnchorNode.click();
+//     document.body.removeChild(downloadAnchorNode);
+    
+//     console.log('Download triggered successfully');
+//     toast.success('File downloaded!');
+//     setIsOpen(false);
+    
+//   } catch (error) {
+//     console.error('Error:', error);
+//     toast.error('Download failed: ' + error);
+//   }
+// };
+
+const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    toast.error('File is too large (max 5MB)');
+    return;
+  }
+  
+  const reader = new FileReader();
+  
+  reader.onload = (event) => {
+    try {
+      const content = event.target?.result as string;
+      if (content) {
+        onFileContent(content);
+        toast.success(`File "${file.name}" loaded successfully!`);
         setIsOpen(false);
-      };
-      reader.onerror = () => {
-        toast.error('Failed to read file');
-      };
-      reader.readAsText(file);
+      }
+    } catch (error) {
+      console.error('File read error:', error);
+      toast.error('Failed to read file');
     }
   };
+  
+  reader.onerror = () => {
+    toast.error('Failed to read file');
+  };
+  
+  reader.readAsText(file);
+  
+  // Clear the input
+  e.target.value = '';
+};
 
-  const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
+const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
+  
   try {
-    // Check if there's code to save
-    if (!currentCode || currentCode.trim() === '') {
+    // Get the latest code from the editor directly
+    const codeToSave = currentCode?.trim() || '';
+    
+    if (!codeToSave) {
       toast.error('No code to save');
       return;
     }
 
-    const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
+    console.log('Saving code length:', codeToSave.length);
+    
+    const blob = new Blob([codeToSave], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    
     a.href = url;
     a.download = `code.${getFileExtension(language)}`;
-    a.style.display = 'none'; // Hide the element
+    a.style.display = 'none';
     
-    // Append to body, click, and remove
     document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
+    URL.revokeObjectURL(url);
     
     toast.success('File downloaded successfully!');
     setIsOpen(false);
+    
   } catch (error) {
-    console.error('Error saving file:', error);
-    toast.error('Failed to download file. Please try again.');
+    console.error('Save error:', error);
+    toast.error('Failed to download file');
   }
 };
 
@@ -448,13 +551,14 @@ useOutsideClick(saveModalRef,  showGitHubSave,  closeAllModals);
 
   return (
     <div className="relative">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".txt,.js,.ts,.py,.java,.cpp,.c,.html,.css,.php,.rb,.go,.rs,.kt,.swift,.cs,.sh"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
+    <input
+  ref={fileInputRef}
+  type="file"
+  accept=".txt,.js,.jsx,.ts,.tsx,.py,.java,.cpp,.c,.html,.css,.php,.rb,.go,.rs,.kt,.swift,.cs,.sh,.json,.xml,.md"
+  onChange={handleFileSelect}
+  className="hidden"
+  multiple={false}
+/>
 
       <button
         onClick={handleOutsideClick}
@@ -476,23 +580,6 @@ useOutsideClick(saveModalRef,  showGitHubSave,  closeAllModals);
             className="absolute top-full mt-2 w-64 bg-[#1e1e2e] rounded-lg shadow-2xl z-50 ring-1 ring-white/10"
           >
             <div className="p-2">
-              <button 
-                onClick={handleOpenLocal} 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#2a2a3a] rounded-lg transition-colors"
-              >
-                <FolderOpen className="w-4 h-4" /> 
-                Open from Local
-              </button>
-              
-              <button 
-              type='button'
-                onClick={handleSaveLocal} 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#2a2a3a] rounded-lg transition-colors"
-              >
-                <Download className="w-4 h-4" /> 
-                Save to Local
-              </button>
-              
               <div className="my-2 h-px bg-white/10" />
               
               <button 
