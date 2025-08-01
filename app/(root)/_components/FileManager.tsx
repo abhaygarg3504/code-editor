@@ -105,88 +105,6 @@ export const FileManager: React.FC<FileManagerProps> = ({
     return extensions[lang] || 'txt';
   };
 
-  const handleOpenLocal = () => fileInputRef.current?.click();
-
-  // const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       onFileContent(reader.result as string);
-  //       toast.success('File loaded successfully!');
-  //       setIsOpen(false);
-  //     };
-  //     reader.onerror = () => {
-  //       toast.error('Failed to read file');
-  //     };
-  //     reader.readAsText(file);
-  //   }
-  // };
-
-// const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
-//   e.preventDefault();
-//   try {
-//     // Check if there's code to save
-//     if (!currentCode || currentCode.trim() === '') {
-//       toast.error('No code to save');
-//       return;
-//     }
-
-//     const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement('a');
-//     a.href = url;
-//     a.download = `code.${getFileExtension(language)}`;
-    
-//     // Important: Trigger the download immediately
-//     document.body.appendChild(a);
-//     a.click();
-//     document.body.removeChild(a);
-    
-//     // Clean up the blob URL
-//     URL.revokeObjectURL(url);
-    
-//     toast.success('File downloaded successfully!');
-//     setIsOpen(false);
-//   } catch (error) {
-//     console.error('Error saving file:', error);
-//     toast.error('Failed to download file. Please try again.');
-//   }
-// };
-
-// const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
-//   e.preventDefault();
-  
-//   try {
-//     if (!currentCode || currentCode.trim() === '') {
-//       toast.error('No code to save');
-//       return;
-//     }
-
-//     // Debug logs
-//     console.log('Attempting to save file...');
-//     console.log('Current code length:', currentCode.length);
-    
-//     const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(currentCode);
-//     const downloadAnchorNode = document.createElement('a');
-//     downloadAnchorNode.setAttribute("href", dataStr);
-//     downloadAnchorNode.setAttribute("download", `code.${getFileExtension(language)}`);
-    
-//     // Must be added to DOM for Firefox
-//     document.body.appendChild(downloadAnchorNode);
-//     downloadAnchorNode.click();
-//     document.body.removeChild(downloadAnchorNode);
-    
-//     console.log('Download triggered successfully');
-//     toast.success('File downloaded!');
-//     setIsOpen(false);
-    
-//   } catch (error) {
-//     console.error('Error:', error);
-//     toast.error('Download failed: ' + error);
-//   }
-// };
-
 const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -216,48 +134,8 @@ const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
   reader.onerror = () => {
     toast.error('Failed to read file');
   };
-  
   reader.readAsText(file);
-  
-  // Clear the input
   e.target.value = '';
-};
-
-const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault();
-  
-  try {
-    // Get the latest code from the editor directly
-    const codeToSave = currentCode?.trim() || '';
-    
-    if (!codeToSave) {
-      toast.error('No code to save');
-      return;
-    }
-
-    console.log('Saving code length:', codeToSave.length);
-    
-    const blob = new Blob([codeToSave], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    
-    a.href = url;
-    a.download = `code.${getFileExtension(language)}`;
-    a.style.display = 'none';
-    
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    URL.revokeObjectURL(url);
-    
-    toast.success('File downloaded successfully!');
-    setIsOpen(false);
-    
-  } catch (error) {
-    console.error('Save error:', error);
-    toast.error('Failed to download file');
-  }
 };
 
   const checkGitHubConnection = () => {
@@ -267,7 +145,6 @@ const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
     }
 
     if (!isActuallyConnected) {
-      console.log('GitHub not connected, triggering auth...');
       onGitHubAuth();
       return false;
     }
@@ -276,13 +153,6 @@ const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
   };
 
   const fetchGitHubRepos = async () => {
-    console.log('Fetching GitHub repos...', {
-      isActuallyConnected,
-      isGitHubConnected,
-      githubConnection,
-      userId: user?.id
-    });
-
     if (!checkGitHubConnection()) return;
 
     setIsLoading(true);
@@ -290,7 +160,6 @@ const handleSaveLocal = (e: React.MouseEvent<HTMLButtonElement>) => {
     
     try {
       const data = await fetchRepos({ userId: user!.id });
-      console.log('Fetched repos:', data);
       
       if (!data || data.length === 0) {
         setError('No repositories found');
@@ -427,16 +296,7 @@ useEffect(() => {
   };
 
   const handleSaveToGitHubClick = async () => {
-    console.log('Save to GitHub clicked', {
-      isActuallyConnected,
-      isGitHubConnected,
-      githubConnection,
-      userId: user?.id
-    });
-
     if (!checkGitHubConnection()) return;
-
-    // Fetch repos first, then show save dialog
     setIsLoading(true);
     setError(null);
     
@@ -513,19 +373,8 @@ useEffect(() => {
     setIsOpen(true)
     document.addEventListener("click",toogleFileDropdown)
   }
-  const handleOutsideFileClick = ()=>{
-    setShowGitHubFiles(true)
-    document.addEventListener("click", ToggleGithubFileDropDown)
-  }
-  const handleOutsideRepoClick = ()=>{
-    setShowGitHubRepos(true)
-    document.addEventListener("click", ToggleGithubRepoDropDown)
-  }
-
-
 const filesModalRef = useRef<HTMLDivElement | null>(null);
 const saveModalRef  = useRef<HTMLDivElement | null>(null);
-
 
 function useOutsideClick<T extends HTMLElement>(
   ref: React.RefObject<T> | React.MutableRefObject<T | null>,
@@ -560,66 +409,113 @@ useOutsideClick(saveModalRef,  showGitHubSave,  closeAllModals);
   multiple={false}
 />
 
-      <button
-        onClick={handleOutsideClick}
-        ref={triggerRef}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-lg ring-1 ring-white/5 transition-colors"
-      >
-        <File className="w-4 h-4 text-gray-400" />
+ <div className="relative inline-block">
+      {/* Trigger Button */}
+     <motion.button
+  onClick={(e) => {
+    setIsOpen(!isOpen);        
+    handleOutsideClick();     
+  }}
+  className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] text-gray-300 rounded-lg hover:bg-[#262637] transition-all duration-200 border border-gray-700/50"
+  whileHover={{ scale: 1.02 }}
+  whileTap={{ scale: 0.98 }}
+  ref={triggerRef}
+>
+   <File className="w-4 h-4 text-gray-400" />
         <span className="font-medium text-gray-300">File</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {/* Dropdown */}
+     
+</motion.button>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
             className="absolute top-full mt-2 w-64 bg-[#1e1e2e] rounded-lg shadow-2xl z-50 ring-1 ring-white/10"
           >
             <div className="p-2">
-              <div className="my-2 h-px bg-white/10" />
-              
-              <button 
-                onClick={fetchGitHubRepos} 
-                disabled={isLoading} 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#2a2a3a] rounded-lg disabled:opacity-50 transition-colors"
+              {/* Open from GitHub Button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                onClick={fetchGitHubRepos}
+                disabled={isLoading}
+                className={`
+                  relative group w-full flex items-center gap-3 px-3 py-2.5 hover:bg-[#262637] transition-all duration-200
+                  text-gray-300 rounded-lg disabled:opacity-50
+                `}
               >
-                <Github className="w-4 h-4" /> 
-                Open from GitHub
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 
+                  group-hover:opacity-100 transition-opacity rounded-lg"
+                />
+                <div
+                  className="flex items-center justify-center size-8 rounded-lg bg-gray-800/50 text-gray-400
+                  group-hover:scale-110 transition-all duration-200"
+                >
+                  <Github className="w-4 h-4" />
+                </div>
+                <span className="flex-1 text-left group-hover:text-white transition-colors">
+                  Open from GitHub
+                </span>
                 {isActuallyConnected && (
-                  <CheckCircle className="w-3 h-3 text-green-400 ml-auto" />
+                  <CheckCircle className="w-4 h-4 text-green-400" />
                 )}
-                {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
-              </button>
-              
-              <button 
-                onClick={handleSaveToGitHubClick} 
-                disabled={isLoading} 
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#2a2a3a] rounded-lg disabled:opacity-50 transition-colors"
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              </motion.button>
+
+              {/* Save to GitHub Button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                onClick={handleSaveToGitHubClick}
+                disabled={isLoading}
+                className={`
+                  relative group w-full flex items-center gap-3 px-3 py-2.5 hover:bg-[#262637] transition-all duration-200
+                  text-gray-300 rounded-lg disabled:opacity-50
+                `}
               >
-                <Save className="w-4 h-4" /> 
-                Save to GitHub
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 
+                  group-hover:opacity-100 transition-opacity rounded-lg"
+                />
+                <div
+                  className="flex items-center justify-center size-8 rounded-lg bg-gray-800/50 text-gray-400
+                  group-hover:scale-110 transition-all duration-200"
+                >
+                  <Save className="w-4 h-4" />
+                </div>
+                <span className="flex-1 text-left group-hover:text-white transition-colors">
+                  Save to GitHub
+                </span>
                 {isActuallyConnected && (
-                  <CheckCircle className="w-3 h-3 text-green-400 ml-auto" />
+                  <CheckCircle className="w-4 h-4 text-green-400" />
                 )}
-                {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
-              </button>
-              
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              </motion.button>
+
+              {/* Error Message */}
               {error && (
-                <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg"
+                >
                   <div className="flex items-center gap-2 text-red-400 text-xs">
                     <AlertCircle className="w-3 h-3" />
                     {error}
                   </div>
-                </div>
+                </motion.div>
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
 
       {/* GitHub Repos Modal */}
       <AnimatePresence>
@@ -693,14 +589,14 @@ useOutsideClick(saveModalRef,  showGitHubSave,  closeAllModals);
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            ref={filesModalRef}
-            className="fixed inset-0  bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 pt-16"
           >
             <motion.div 
-              initial={{ scale: 0.9 }} 
-              animate={{ scale: 1 }} 
-              exit={{ scale: 0.9 }} 
-              className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto"
+              initial={{ scale: 0.9, y: -20 }} 
+              animate={{ scale: 1, y: 0 }} 
+              exit={{ scale: 0.9, y: -20 }} 
+              ref={filesModalRef}
+              className="bg-[#1e1e2e] rounded-lg shadow-2xl w-full max-w-4xl mx-4 max-h-[calc(100vh-8rem)] overflow-hidden flex flex-col"
             >
               <motion.div 
                initial={{ opacity: 0, y: -10 }}
