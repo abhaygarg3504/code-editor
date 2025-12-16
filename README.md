@@ -6,15 +6,14 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 
 - **Real-Time Collaboration**: Create and join collaborative coding rooms with live code synchronization
 - **Advanced Code Editor**: Powered by Monaco Editor (VS Code's editor) with syntax highlighting, IntelliSense, and multi-language support
-- **Video Calling**: Integrated Stream.io for seamless video calls during collaboration sessions
 - **GitHub Integration**: Authenticate with GitHub, import/export code snippets, and manage repositories
 - **Code Snippets Management**: Save, share, and comment on code snippets with a dedicated snippets page
 - **User Authentication**: Secure authentication via Clerk with user profiles and access control
 - **Payment Integration**: Razorpay integration for premium subscriptions and features
 - **Responsive Design**: Built with Tailwind CSS for a modern, accessible UI
-- **Real-Time Communication**: Socket.io for instant messaging and updates
 - **Theme Support**: Light and dark mode with customizable themes
 - **Language Support**: Support for multiple programming languages with syntax highlighting
+- **Video Calling**: Integrated Stream.io for seamless video calls during collaboration sessions
 
 ## 🏗️ Architecture
 
@@ -28,27 +27,25 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 
 ### Backend
 - **Convex**: Serverless backend-as-a-service for database and real-time subscriptions
-- **Socket.io**: Real-time bidirectional communication for collaborative features
-- **Express Server**: Custom server for handling WebSocket connections
 
 ### Authentication & Integrations
 - **Clerk**: User authentication and management
-- **Stream.io**: Video calling and chat functionality
 - **GitHub API**: Repository integration and OAuth
 - **Razorpay**: Payment processing for premium features
+- **Stream.io**: Video calling and chat functionality
 
 ### Database Schema
 - **Users**: User profiles and authentication data
 - **Rooms**: Collaborative coding sessions
 - **Snippets**: Shared code snippets with comments
-- **Video Calls**: Stream.io integration data
 - **Payments**: Transaction and subscription records
+- **Video Calls**: Stream.io integration data
 
 ## 📋 Tech Stack
 
 ### Core Technologies
 - **Frontend**: Next.js, React, TypeScript
-- **Backend**: Convex, Node.js, Express
+- **Backend**: Convex
 - **Database**: Convex (built on SQLite/PostgreSQL)
 - **Real-Time**: Socket.io
 - **Authentication**: Clerk
@@ -68,7 +65,6 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 - `@stream-io/video-react-sdk`: Video calling UI
 - `@clerk/nextjs`: Authentication
 - `convex`: Backend framework
-- `socket.io`: Real-time communication
 - `framer-motion`: Animations
 - `react-hot-toast`: Notifications
 - `lucide-react`: Icons
@@ -79,10 +75,10 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 2. **Dashboard**: Access to code editor, snippets, profile, and pricing
 3. **Collaboration**: Create or join a room for real-time coding
 4. **Code Editing**: Use Monaco Editor with syntax highlighting and IntelliSense
-5. **Video Calls**: Initiate video calls using Stream.io during sessions
-6. **Snippet Sharing**: Save and share code snippets with comments
-7. **Premium Features**: Upgrade via Razorpay for advanced features
-8. **GitHub Integration**: Import/export code from GitHub repositories
+5. **Snippet Sharing**: Save and share code snippets with comments
+6. **Premium Features**: Upgrade via Razorpay for advanced features
+7. **GitHub Integration**: Import/export code from GitHub repositories
+8. **Video Calls**: Initiate video calls using Stream.io during sessions
 
 ## 🚀 Installation & Setup
 
