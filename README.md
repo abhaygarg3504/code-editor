@@ -13,7 +13,6 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 - **Responsive Design**: Built with Tailwind CSS for a modern, accessible UI
 - **Theme Support**: Light and dark mode with customizable themes
 - **Language Support**: Support for multiple programming languages with syntax highlighting
-- **Video Calling**: Integrated Stream.io for seamless video calls during collaboration sessions
 
 ## 🏗️ Architecture
 
@@ -30,16 +29,13 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 
 ### Authentication & Integrations
 - **Clerk**: User authentication and management
-- **GitHub API**: Repository integration and OAuth
 - **Razorpay**: Payment processing for premium features
-- **Stream.io**: Video calling and chat functionality
 
 ### Database Schema
 - **Users**: User profiles and authentication data
 - **Rooms**: Collaborative coding sessions
 - **Snippets**: Shared code snippets with comments
 - **Payments**: Transaction and subscription records
-- **Video Calls**: Stream.io integration data
 
 ## 📋 Tech Stack
 
@@ -47,9 +43,7 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 - **Frontend**: Next.js, React, TypeScript
 - **Backend**: Convex
 - **Database**: Convex (built on SQLite/PostgreSQL)
-- **Real-Time**: Socket.io
 - **Authentication**: Clerk
-- **Video**: Stream.io
 - **Payments**: Razorpay
 
 ### Development Tools
@@ -119,13 +113,6 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 
-   # Stream.io
-   NEXT_PUBLIC_STREAM_API_KEY=
-   STREAM_SECRET=
-
-   # GitHub
-   GITHUB_CLIENT_ID=
-   GITHUB_CLIENT_SECRET=
 
    # Razorpay
    RAZORPAY_KEY_ID=
