@@ -6,7 +6,6 @@ A modern, collaborative code editor built with Next.js, Convex, and real-time te
 
 - **Real-Time Collaboration**: Create and join collaborative coding rooms with live code synchronization
 - **Advanced Code Editor**: Powered by Monaco Editor (VS Code's editor) with syntax highlighting, IntelliSense, and multi-language support
-- **GitHub Integration**: Authenticate with GitHub, import/export code snippets, and manage repositories
 - **Code Snippets Management**: Save, share, and comment on code snippets with a dedicated snippets page
 - **User Authentication**: Secure authentication via Clerk with user profiles and access control
 - **Payment Integration**: Razorpay integration for premium subscriptions and features
